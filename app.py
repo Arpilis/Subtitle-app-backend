@@ -45,17 +45,16 @@ openai.api_key = os.getenv("OPENAI_API_KEY")   # Variable set in Railway
 
 def download_audio(url: str) -> str:
     """
-    Download only the audio track of a YouTube video to a temp .mp3 file.
-    Returns the local file path.
+    Download the best available audio track *as-is* (no FFmpeg needed)
+    and return the local file path.
     """
-    tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+    tmp = tempfile.NamedTemporaryFile(suffix=".webm", delete=False)
     result = subprocess.run(
-        ["yt-dlp", "-x", "--audio-format", "mp3", "-o", tmp.name, url],
-        capture_output=True,
-        text=True
+        ["yt-dlp", "-f", "bestaudio", "-o", tmp.name, url],
+        capture_output=True, text=True
     )
     if result.returncode != 0:
-        raise HTTPException(status_code=400, detail="yt-dlp failed to download audio")
+        raise HTTPException(status_code=400, detail=f"yt-dlp error: {result.stderr[:120]}")
     return tmp.name
 
 def transcribe(path: str) -> str:
