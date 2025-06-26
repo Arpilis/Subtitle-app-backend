@@ -4,12 +4,16 @@ import os
 import uuid
 import tempfile
 import subprocess
+import httpx
 
-from google.cloud import translate_v2 as translate
-translator = translate.Client()  # uses GOOGLE_API_KEY env var
 
 def translate_hu(text: str) -> str:
-    return translator.translate(text, target_language="hu")["translatedText"]
+    url = "https://translation.googleapis.com/language/translate/v2"
+    params = {"key": os.getenv("GOOGLE_API_KEY")}
+    payload = {"q": text, "target": "hu", "format": "text"}
+    r = httpx.post(url, params=params, json=payload, timeout=30)
+    r.raise_for_status()
+    return r.json()["data"]["translations"][0]["translatedText"]
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
