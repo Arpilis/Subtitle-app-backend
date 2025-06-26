@@ -85,7 +85,7 @@ async def generate_subtitles(request: VideoRequest):
         analysis=analysis
     )
 
-@app.get("/")
-def ping():
-    """Simple health check."""
-    return {"status": "ok"}
+@app.get("/quicktest")
+def quick_test(video_url: str):
+    hu_text = translate_hu(transcribe(download_audio(video_url)))
+    return {"transcript": hu_text[:400] + " …"}
