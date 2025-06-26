@@ -5,6 +5,12 @@ import uuid
 import tempfile
 import subprocess
 
+from google.cloud import translate_v2 as translate
+translator = translate.Client()  # uses GOOGLE_API_KEY env var
+
+def translate_hu(text: str) -> str:
+    return translator.translate(text, target_language="hu")["translatedText"]
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
