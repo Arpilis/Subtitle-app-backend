@@ -4,3 +4,4 @@ httpx
 pydantic
 openai
 yt-dlp
+google-cloud-translate==3.10.0
