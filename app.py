@@ -5,6 +5,8 @@ import uuid
 import tempfile
 import subprocess
 import httpx
+import yt_dlp
+
 
 
 def translate_hu(text: str) -> str:
@@ -45,16 +47,18 @@ openai.api_key = os.getenv("OPENAI_API_KEY")   # Variable set in Railway
 
 def download_audio(url: str) -> str:
     """
-    Download the best available audio track *as-is* (no FFmpeg needed)
-    and return the local file path.
+    Download the best audio track with yt-dlp’s Python API.
+    Saves as .m4a (no FFmpeg needed) and returns the local path.
     """
-    tmp = tempfile.NamedTemporaryFile(suffix=".webm", delete=False)
-    result = subprocess.run(
-        ["yt-dlp", "-f", "bestaudio", "-o", tmp.name, url],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        raise HTTPException(status_code=400, detail=f"yt-dlp error: {result.stderr[:120]}")
+    tmp = tempfile.NamedTemporaryFile(suffix=".m4a", delete=False)
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "outtmpl": tmp.name,              # exact filename
+        "quiet": True,
+        "noplaylist": True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
     return tmp.name
 
 def transcribe(path: str) -> str:
