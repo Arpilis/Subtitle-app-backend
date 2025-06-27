@@ -2,6 +2,6 @@ fastapi
 uvicorn
 httpx
 pydantic
-openai
+openai==0.28.1
 yt-dlp
 google-cloud-translate==3.10.0
